@@ -160,8 +160,9 @@
     ></script>
     <script>
       $(document).ready(function () {
-        let password = getPasswordFromQueryString();
-        $.getJSON(`deliveries_${password}.json`, data => {
+        const password = getPasswordFromQueryString();
+        const timestamp = String(Date.now());
+        $.getJSON(`deliveries_${password}.json?ts=${timestamp}`, data => {
           let html = '';
           data.forEach(delivery => {
             html += `

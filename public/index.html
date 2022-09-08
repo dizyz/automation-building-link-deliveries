@@ -71,8 +71,9 @@
         }
 
         const sanitizedPassword = sanitizeFilename(password);
+        const timestamp = String(Date.now());
 
-        $.getJSON(`deliveries_${sanitizedPassword}.json`, (data) => {
+        $.getJSON(`deliveries_${sanitizedPassword}.json?ts=${timestamp}`, (data) => {
           window.location = `deliveries.html?password=${sanitizedPassword}`;
         }).fail(() => {
           alert("Wrong password");
