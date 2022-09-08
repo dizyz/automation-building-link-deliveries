@@ -33,9 +33,3 @@ jobs:
           BUILDINGLINK_USERNAME: ${{ secrets.BUILDINGLINK_USERNAME }}
           BUILDINGLINK_PASSWORD: ${{ secrets.BUILDINGLINK_PASSWORD }}
           VISITOR_PASSWORD: ${{ secrets.VISITOR_PASSWORD }}
-
-      - name: Deploy GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
