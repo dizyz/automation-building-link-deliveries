@@ -1,13 +1,24 @@
 import Puppeteer from 'puppeteer';
+import * as FS from 'fs-extra';
 
 import {BUILDINGLINK_USERNAME, BUILDINGLINK_PASSWORD} from './@env';
+import {formateDate} from './@utils';
+import {DELIVERIES_JSON_PATH, PUBLIC_DIR} from './@paths';
 
 const LOGIN_URL = 'https://auth.buildinglink.com/Account/Login';
 const DELIVERIES_URL =
   'https://www.buildinglink.com/V2/Tenant/Deliveries/Deliveries.aspx';
 
-async function main(): Promise<void> {
-  let browser = await Puppeteer.launch({headless: false});
+interface DeliveryInfo {
+  date: string;
+  vendor: string;
+  trackingNumber: string;
+}
+
+async function getDeliveryInfos(): Promise<DeliveryInfo[]> {
+  let result: DeliveryInfo[] = [];
+
+  let browser = await Puppeteer.launch({headless: true});
   try {
     let page = await browser.newPage();
     {
@@ -47,15 +58,52 @@ async function main(): Promise<void> {
       ) {
         throw new Error('Login failed');
       }
-
-      await page.goto(DELIVERIES_URL);
-      await page.waitForSelector(
-        '#ctl00_ContentPlaceHolder1_DeliveriesWrapper',
-      );
     }
+
+    await page.goto(DELIVERIES_URL);
+    await page.waitForSelector('#ctl00_ContentPlaceHolder1_DeliveriesWrapper');
+
+    {
+      let table = await page.$('table.rgMasterTable');
+      if (!table) {
+        throw new Error('Table not found');
+      }
+
+      let rows = await table.$$('tr.rgRow, tr.rgAltRow');
+      for (let row of rows) {
+        let cells = await row.$$('td');
+        if (cells.length < 3) {
+          throw new Error('Unexpected number of cells in row');
+        }
+        let date = String(
+          await cells[0].evaluate(node => node.textContent),
+        ).trim();
+        date = formateDate(date);
+        let vendor = String(
+          await cells[1].evaluate(node => node.textContent),
+        ).trim();
+        let trackingNumber = String(
+          await cells[2].evaluate(node => node.textContent),
+        ).trim();
+
+        result.push({
+          date,
+          vendor,
+          trackingNumber,
+        });
+      }
+    }
+
+    return result;
   } finally {
     await browser.close();
   }
+}
+
+async function main(): Promise<void> {
+  let deliveryInfos = await getDeliveryInfos();
+  await FS.mkdirp(PUBLIC_DIR);
+  await FS.writeJSON(DELIVERIES_JSON_PATH, deliveryInfos, {spaces: 2});
 }
 
 main().catch(console.error);
