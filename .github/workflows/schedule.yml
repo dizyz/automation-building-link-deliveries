@@ -1,0 +1,41 @@
+name: Schedule
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  push:
+    branches:
+      - main
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Run script
+        run: |
+          yarn start
+        env:
+          BUILDINGLINK_USERNAME: ${{ secrets.BUILDINGLINK_USERNAME }}
+          BUILDINGLINK_PASSWORD: ${{ secrets.BUILDINGLINK_PASSWORD }}
+          VISITOR_PASSWORD: ${{ secrets.VISITOR_PASSWORD }}
+
+      - name: Deploy GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
