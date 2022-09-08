@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
       - uses: actions/cache@v2
         with:
           path: '**/node_modules'
@@ -33,3 +36,12 @@ jobs:
           BUILDINGLINK_USERNAME: ${{ secrets.BUILDINGLINK_USERNAME }}
           BUILDINGLINK_PASSWORD: ${{ secrets.BUILDINGLINK_PASSWORD }}
           VISITOR_PASSWORD: ${{ secrets.VISITOR_PASSWORD }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
