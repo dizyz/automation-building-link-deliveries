@@ -111,6 +111,15 @@
         font-weight: 300;
         color: #777777;
       }
+      .last-update-hint {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        color: #b2b1b1;
+        font-size: 14px;
+        font-weight: 300;
+      }
     </style>
   </head>
   <body style="background-color: #efeef5">
@@ -169,8 +178,9 @@
         const password = getPasswordFromQueryString();
         const timestamp = String(Date.now());
         $.getJSON(`deliveries_${password}.json?ts=${timestamp}`, data => {
+          let {deliveries, updatedAt} = data;
           let html = '';
-          data.forEach(delivery => {
+          deliveries.forEach(delivery => {
             html += `
                     <div class="delivery-info-card" style="margin-bottom: 10px">
                       <div class="delivery-info-card-head">
@@ -186,6 +196,13 @@
                     </div>
                   `;
           });
+
+          html += `
+                  <div class="last-update-hint">
+                    Last updated at ${getTimeDifference(updatedAt)}
+                  </div>
+                `;
+
           $('#delivery-content').html(html);
         }).fail(() => {
           alert('Wrong password');
@@ -205,6 +222,28 @@
         } else {
           return false;
         }
+      }
+
+      function getTimeDifference(timestamp) {
+        let now = new Date();
+        let difference = now.getTime() - timestamp;
+        let seconds = Math.floor(difference / 1000);
+        let minutes = Math.floor(seconds / 60);
+        let hours = Math.floor(minutes / 60);
+        let days = Math.floor(hours / 24);
+
+        let time = '';
+        if (days > 0) {
+          time = days + 'd ago';
+        } else if (hours > 0) {
+          time = hours + 'hr ago';
+        } else if (minutes > 0) {
+          time = minutes + 'min ago';
+        } else {
+          time = seconds + 'sec ago';
+        }
+
+        return time;
       }
     </script>
   </body>

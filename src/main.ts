@@ -15,6 +15,11 @@ interface DeliveryInfo {
   trackingNumber: string;
 }
 
+interface DeliveriesJSON {
+  deliveries: DeliveryInfo[];
+  updatedAt: number;
+}
+
 async function getDeliveryInfos(): Promise<DeliveryInfo[]> {
   let result: DeliveryInfo[] = [];
 
@@ -103,7 +108,11 @@ async function getDeliveryInfos(): Promise<DeliveryInfo[]> {
 async function main(): Promise<void> {
   let deliveryInfos = await getDeliveryInfos();
   await FS.mkdirp(PUBLIC_DIR);
-  await FS.writeJSON(DELIVERIES_JSON_PATH, deliveryInfos, {spaces: 2});
+  const deliveriesJSON: DeliveriesJSON = {
+    deliveries: deliveryInfos,
+    updatedAt: Date.now(),
+  };
+  await FS.writeJSON(DELIVERIES_JSON_PATH, deliveriesJSON, {spaces: 2});
 }
 
 main().catch(console.error);
