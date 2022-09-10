@@ -179,6 +179,7 @@
         const timestamp = String(Date.now());
         $.getJSON(`deliveries_${password}.json?ts=${timestamp}`, data => {
           let {deliveries, updatedAt} = data;
+          deliveries = deliveries.reverse();
           let html = '';
           deliveries.forEach(delivery => {
             html += `
