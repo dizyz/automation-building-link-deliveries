@@ -17,9 +17,11 @@
   </head>
   <body>
     <div
+      id="container"
       class="container"
       style="
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
@@ -64,6 +66,19 @@
       crossorigin="anonymous"
     ></script>
     <script lang="javascript">
+      $(document).ready(function () {
+        $.getJSON('deliveries_maintenance.json', (data) => {
+          console.error(data);
+          $('#container').prepend(
+            `
+            <div class="alert alert-warning" role="alert">
+              BuildingLink is currently under maintenance. Please try again later.
+            </div>
+            `
+          );
+        });
+      });
+
       function validateForm() {
         let password = document.forms["login-form"]["password"].value;
         if (password == "") {

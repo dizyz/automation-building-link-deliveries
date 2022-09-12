@@ -10,3 +10,7 @@ export const DELIVERIES_JSON_PATH = Path.resolve(
   PUBLIC_DIR,
   `deliveries_${sanitizeFilename(VISITOR_PASSWORD)}.json`,
 );
+export const DELIVERIES_MAINTENANCE_JSON_PATH = Path.resolve(
+  PUBLIC_DIR,
+  `deliveries_maintenance.json`,
+);

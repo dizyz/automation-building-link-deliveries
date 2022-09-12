@@ -3,7 +3,11 @@ import * as FS from 'fs-extra';
 
 import {BUILDINGLINK_USERNAME, BUILDINGLINK_PASSWORD} from './@env';
 import {formateDate} from './@utils';
-import {DELIVERIES_JSON_PATH, PUBLIC_DIR} from './@paths';
+import {
+  DELIVERIES_JSON_PATH,
+  DELIVERIES_MAINTENANCE_JSON_PATH,
+  PUBLIC_DIR,
+} from './@paths';
 
 const LOGIN_URL = 'https://auth.buildinglink.com/Account/Login';
 const DELIVERIES_URL =
@@ -106,13 +110,24 @@ async function getDeliveryInfos(): Promise<DeliveryInfo[]> {
 }
 
 async function main(): Promise<void> {
-  let deliveryInfos = await getDeliveryInfos();
   await FS.mkdirp(PUBLIC_DIR);
-  const deliveriesJSON: DeliveriesJSON = {
-    deliveries: deliveryInfos,
-    updatedAt: Date.now(),
-  };
-  await FS.writeJSON(DELIVERIES_JSON_PATH, deliveriesJSON, {spaces: 2});
+
+  try {
+    let deliveryInfos = await getDeliveryInfos();
+
+    const deliveriesJSON: DeliveriesJSON = {
+      deliveries: deliveryInfos,
+      updatedAt: Date.now(),
+    };
+
+    await FS.writeJSON(DELIVERIES_JSON_PATH, deliveriesJSON, {spaces: 2});
+  } catch (error) {
+    console.error(error);
+    await FS.writeJSON(DELIVERIES_MAINTENANCE_JSON_PATH, {
+      error: String(error),
+    });
+    return;
+  }
 }
 
 main().catch(console.error);
