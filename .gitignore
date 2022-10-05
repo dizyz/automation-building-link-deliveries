@@ -6,3 +6,4 @@ dist/
 *.local
 *.log
 /public/deliveries_*.json
+.env
